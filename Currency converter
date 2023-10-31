@@ -1,0 +1,26 @@
+const express = require('express');
+const axios = require('axios');
+const app = express();
+const PORT = 3000;
+
+const ENDPOINT = 'https://api.currencyapi.com/v3/latest';
+const KEY = 'cur_live_Wd5pljMep3L86aIacuOb4D9MwVB13HEdqIyouN0a';
+
+app.get('/convert', async (req, res) => {
+    const { from, to, amount } = req.query;
+    try {
+        const response = await axios.get(`${ENDPOINT}?apikey=${KEY}`);
+        console.log('API Response:', response.data);
+        const rates = response.data.rates;
+        const exchangeRate = rates[to] / rates[from];
+        const convertedAmount = (amount * exchangeRate).toFixed(2);
+        res.json({ convertedAmount });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
